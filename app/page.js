@@ -22,6 +22,13 @@ export default function Dashboard() {
   const [url, setUrl] = useState("");
   const [shortCode, setShortCode] = useState("");
   const [addError, setAddError] = useState("");
+  const [currentPath, setCurrentPath] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCurrentPath(window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchLinks() {
@@ -83,24 +90,27 @@ export default function Dashboard() {
         paddingTop: "32px",
         boxShadow: "2px 0 8px rgba(60,60,110,0.1)"
       }}>
-        {navLinks.map((link, idx) => (
-          <Link href={link.path} key={link.name} passHref>
-            <div
-              style={{
-                width: "100%",
-                padding: "14px 20px",
-                marginBottom: "8px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                background: window.location.pathname === link.path ? "#485980" : "inherit",
-                color: window.location.pathname === link.path ? "#eef2fb" : "#f5f9ff",
-                transition: "background 0.18s, color 0.18s"
-              }}
-            >
-              {link.name}
-            </div>
-          </Link>
-        ))}
+        {navLinks.map((link, idx) => {
+          const isActive = currentPath === link.path;
+          return (
+            <Link href={link.path} key={link.name} passHref>
+              <div
+                style={{
+                  width: "100%",
+                  padding: "14px 20px",
+                  marginBottom: "8px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  background: isActive ? "#485980" : "inherit",
+                  color: isActive ? "#eef2fb" : "#f5f9ff",
+                  transition: "background 0.18s, color 0.18s"
+                }}
+              >
+                {link.name}
+              </div>
+            </Link>
+          );
+        })}
       </aside>
       <main style={{ flex: 1, padding: "48px 0" }}>
         <div style={{ maxWidth: "980px", margin: "0 auto", background: "#f5fbfa", borderRadius: "18px", boxShadow: "0 6px 24px rgba(80,100,120,0.07)", padding: "24px 30px" }}>
@@ -148,7 +158,7 @@ export default function Dashboard() {
                 cursor: "pointer"
               }}
             >Add</button>
-            {addError && <span style={{color:"#cd3849", marginLeft:"18px"}}>{addError}</span>}
+            {addError && <span style={{ color: "#cd3849", marginLeft: "18px" }}>{addError}</span>}
           </form>
           <div style={{
             marginBottom: "22px",
@@ -179,7 +189,7 @@ export default function Dashboard() {
               }}
             />
           </div>
-          <div style={{overflowX:"auto"}}>
+          <div style={{ overflowX: "auto" }}>
             <table style={{
               width: "100%",
               borderCollapse: "collapse",
@@ -189,38 +199,38 @@ export default function Dashboard() {
               fontSize: "1.07rem"
             }}>
               <thead>
-                <tr style={{background:"#d7f2fa", fontWeight:600}}>
-                  <th style={{padding:"14px", border:"3px solid #2a385a"}}>Short Code</th>
-                  <th style={{padding:"14px", border:"3px solid #2a385a"}}>Target URL</th>
-                  <th style={{padding:"14px", border:"3px solid #2a385a"}}>Total Clicks</th>
-                  <th style={{padding:"14px", border:"3px solid #2a385a"}}>Last Clicked</th>
-                  <th style={{padding:"14px", border:"3px solid #2a385a"}}>Actions</th>
+                <tr style={{ background: "#d7f2fa", fontWeight: 600 }}>
+                  <th style={{ padding: "14px", border: "3px solid #2a385a" }}>Short Code</th>
+                  <th style={{ padding: "14px", border: "3px solid #2a385a" }}>Target URL</th>
+                  <th style={{ padding: "14px", border: "3px solid #2a385a" }}>Total Clicks</th>
+                  <th style={{ padding: "14px", border: "3px solid #2a385a" }}>Last Clicked</th>
+                  <th style={{ padding: "14px", border: "3px solid #2a385a" }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {displayedLinks.length === 0 ? (
-                  <tr><td colSpan={5} style={{textAlign:"center", padding:"28px", color:"#469ba7"}}>No links found.</td></tr>
+                  <tr><td colSpan={5} style={{ textAlign: "center", padding: "28px", color: "#469ba7" }}>No links found.</td></tr>
                 ) : (
                   displayedLinks.map(link => (
-                    <tr key={link.shortCode} style={{background:"#f7fcfa"}}>
-                      <td style={{padding:"16px 10px", border:"3px solid #2a385a", fontWeight:600}}>
-                        <a href={`/${link.shortCode}`} style={{color:"#2196a8", textDecoration:"underline"}}>{link.shortCode}</a>
+                    <tr key={link.shortCode} style={{ background: "#f7fcfa" }}>
+                      <td style={{ padding: "16px 10px", border: "3px solid #2a385a", fontWeight: 600 }}>
+                        <a href={`/${link.shortCode}`} style={{ color: "#2196a8", textDecoration: "underline" }}>{link.shortCode}</a>
                       </td>
-                      <td style={{padding:"16px 10px", border:"3px solid #2a385a", wordBreak:"break-word"}}>{link.url}</td>
-                      <td style={{padding:"16px 10px", border:"3px solid #2a385a"}}>{link.clicks ?? 0}</td>
-                      <td style={{padding:"16px 10px", border:"3px solid #2a385a"}}>{formatDate(link.lastClicked)}</td>
-                      <td style={{padding:"16px 10px", border:"3px solid #2a385a"}}>
+                      <td style={{ padding: "16px 10px", border: "3px solid #2a385a", wordBreak: "break-word" }}>{link.url}</td>
+                      <td style={{ padding: "16px 10px", border: "3px solid #2a385a" }}>{link.clicks ?? 0}</td>
+                      <td style={{ padding: "16px 10px", border: "3px solid #2a385a" }}>{formatDate(link.lastClicked)}</td>
+                      <td style={{ padding: "16px 10px", border: "3px solid #2a385a" }}>
                         <button
                           onClick={() => handleDelete(link.shortCode)}
                           style={{
-                            background:"#cd3849",
-                            color:"#fff",
-                            border:"none",
-                            borderRadius:"5px",
-                            padding:"8px 16px",
-                            marginRight:"12px",
-                            cursor:"pointer",
-                            fontWeight:600
+                            background: "#cd3849",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "5px",
+                            padding: "8px 16px",
+                            marginRight: "12px",
+                            cursor: "pointer",
+                            fontWeight: 600
                           }}
                         >Delete</button>
                       </td>
