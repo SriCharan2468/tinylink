@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const navLinks = [
   { name: "Home", path: "/home" },
@@ -9,14 +9,20 @@ const navLinks = [
   { name: "Health Check", path: "/healthz" }
 ];
 
-
-
 export default function HomePage() {
   const [hovered, setHovered] = useState(-1);
   const [url, setUrl] = useState("");
   const [shortCode, setShortCode] = useState("");
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [locationOrigin, setLocationOrigin] = useState("");
+  const [locationPath, setLocationPath] = useState("");
+
+  useEffect(() => {
+    // Only runs in browser
+    setLocationOrigin(window.location.origin);
+    setLocationPath(window.location.pathname);
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -40,9 +46,11 @@ export default function HomePage() {
   }
 
   function handleCopy() {
-    navigator.clipboard.writeText(`${window.location.origin}/${shortCode}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    if (locationOrigin && shortCode) {
+      navigator.clipboard.writeText(`${locationOrigin}/${shortCode}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
   }
 
   return (
@@ -57,24 +65,27 @@ export default function HomePage() {
         paddingTop: "32px",
         boxShadow: "2px 0 8px rgba(60,60,110,0.1)"
       }}>
-        {navLinks.map((link, idx) => (
-          <Link href={link.path} key={link.name} passHref>
-            <div
-              style={{
-                width: "100%",
-                padding: "14px 20px",
-                marginBottom: "8px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                background: window.location.pathname === link.path ? "#485980" : "inherit",
-                color: window.location.pathname === link.path ? "#eef2fb" : "#f5f9ff",
-                transition: "background 0.18s, color 0.18s"
-              }}
-            >
-              {link.name}
-            </div>
-          </Link>
-        ))}
+        {navLinks.map((link, idx) => {
+          const isActive = locationPath === link.path;
+          return (
+            <Link href={link.path} key={link.name} passHref>
+              <div
+                style={{
+                  width: "100%",
+                  padding: "14px 20px",
+                  marginBottom: "8px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  background: isActive ? "#485980" : "inherit",
+                  color: isActive ? "#eef2fb" : "#f5f9ff",
+                  transition: "background 0.18s, color 0.18s"
+                }}
+              >
+                {link.name}
+              </div>
+            </Link>
+          );
+        })}
       </aside>
       <main style={{
         flex: 1,
@@ -150,7 +161,7 @@ export default function HomePage() {
             }}>
               Shortened URL:&nbsp;
               <a href={`/${shortCode}`} style={{ fontWeight: 600 }}>
-                {window.location.origin}/{shortCode}
+                {locationOrigin}/{shortCode}
               </a>
               <button
                 onClick={handleCopy}
@@ -160,7 +171,7 @@ export default function HomePage() {
                   background: "transparent",
                   cursor: "pointer",
                   padding: 0,
-                  opacity: 0.4,         // Transparent!
+                  opacity: 0.4,
                   transition: "opacity 0.15s"
                 }}
                 onMouseEnter={e => e.currentTarget.style.opacity = 1}
@@ -185,5 +196,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-
